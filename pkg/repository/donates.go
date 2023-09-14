@@ -23,8 +23,8 @@ func (dr *DonateRepository) AddDonate(donate *entities.Donate) (*entities.Donate
 	return donate, result.Error
 }
 
-func (dr *DonateRepository) GetLastDonates(count int) ([]*entities.Donate, error) {
-	var donates []*entities.Donate
+func (dr *DonateRepository) GetLastDonates(count int) ([]entities.Donate, error) {
+	var donates []entities.Donate
 	result := dr.db.Order("date DESC").Limit(count).Find(&donates)
 	if result.Error != nil {
 		return nil, result.Error
@@ -44,15 +44,23 @@ func (dr *DonateRepository) PaymentExist(paymentID string) (bool, error) {
 	return true, nil
 }
 
-// export const checkIfPaymentExists = (paymentId) => {
-//     return db('donates').first().where({ payment_id: paymentId })
-// }
+func (dr *DonateRepository) GetTopDonaters(count int) ([]entities.Donater, error) {
+	var donaters []entities.Donater
 
-// export const getTopDonaters = () => {
-//     return db('donates').select('donater_username', 'sum(payment_price)').groupBy('donater_username').orderBy('sum(payment_price)', 'desc')
-// }
+	result := dr.db.Model(&entities.Donate{}).
+		Select("donater_username, sum(payment_price) as money_spent").
+		Group("donater_username").
+		Order("money_spent DESC").
+		Limit(count).
+		Find(&donaters)
 
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
-func (dr *DonateRepository) Migrate() {
-	dr.db.AutoMigrate(&entities.Donate{})
+	return donaters, nil
+}
+
+func (dr *DonateRepository) Migrate() error {
+	return dr.db.AutoMigrate(&entities.Donate{})
 }
