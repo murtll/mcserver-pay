@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 
 	"github.com/murtll/mcserver-pay/pkg/config"
@@ -25,6 +26,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	flag.Parse()
 
 	// init repositories
 	dr := repository.NewDonateRepository(db)
@@ -61,6 +64,8 @@ func main() {
 
 	// mount routers
 	router.Mount("/process", routes.NewPaymentRouter(ds))
+
+	log.Default().Printf("Starting server v%s on %s", config.Version, config.ListenAddr)
 
 	err = http.ListenAndServe(config.ListenAddr, router)
 	if err != nil {

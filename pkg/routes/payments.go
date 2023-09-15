@@ -1,12 +1,14 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/murtll/mcserver-pay/pkg/config"
+	"github.com/murtll/mcserver-pay/pkg/crypto"
 	"github.com/murtll/mcserver-pay/pkg/entities"
 	"github.com/murtll/mcserver-pay/pkg/service"
 )
@@ -68,35 +70,24 @@ func (p *PaymentRouter) processFkPayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	p.ds.ProcessDonate(request, request.Promo)
+	log.Default().Print(*request)
+
+	err := p.ds.ProcessDonate(request,
+							  request.Promo,
+							  crypto.CheckSignFk,
+							  request.Sign,
+							  config.FkMerchantID,
+							  request.Amount,
+							  config.FkSigningKey,
+							  request.MerchantOrderID)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, entities.NewErrorResponse(err))
+		return
+	}
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, entities.NewOkResponse())
 }
-
-// router.post('/process-payment-fk', async (req, res) => {
-//     const trustedIps = ['168.119.157.136', '168.119.60.227', '138.201.88.124', '178.154.197.79']
-
-//     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
-
-//     console.log('from: ' + ip)
-
-//     if (!trustedIps.includes(ip)) {
-//         return res.status(400).json({ error: 'Bad IP' })
-//     }
-
-//     const info = req.body
-//     console.log(info)
-
-//     if (await db.checkIfPaymentExists(info.intid)) return res.status(400).json({ error: 'Payment already exists.' })
-
-//     let promo = null
-//     if (req.body.us_promo)
-//     	promo = await db.getPromo(req.body.us_promo)
-
-//     try {
-//         const item = await db.getItemById(Number(info.us_donate))
-// 		if (Math.round((promo ? promo.multiplier : 1) * calculatePrice(item.price, info.us_number)) !== Number(info.AMOUNT)) {
-// 			console.log('Invalid amount: ' + info.AMOUNT + ' Real price: ' + calculatePrice(item.price, info.us_number))
-// 			return res.status(400).json({ error: 'Invalid amount' })
-// 		}
 
 // 		if (item.command) {
 // 	    	var command = item.command.replaceAll('%user%', info.us_username)

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"log"
 
 	"gorm.io/gorm"
 
@@ -32,7 +33,7 @@ func (dr *DonateRepository) GetLastDonates(count int) ([]entities.Donate, error)
 	return donates, nil
 }
 
-func (dr *DonateRepository) PaymentExist(paymentID uint) (bool, error) {
+func (dr *DonateRepository) PaymentExist(paymentID int) (bool, error) {
 	var donate entities.Donate
 	result := dr.db.Where("payment_id = ?", paymentID).Take(&donate)
 	if result.Error != nil {
@@ -62,5 +63,6 @@ func (dr *DonateRepository) GetTopDonaters(count int) ([]entities.Donater, error
 }
 
 func (dr *DonateRepository) Migrate() error {
+	log.Default().Println("Running migrations for donate repository...")
 	return dr.db.AutoMigrate(&entities.Donate{})
 }

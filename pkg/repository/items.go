@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/go-chi/render"
 	"github.com/murtll/mcserver-pay/pkg/entities"
@@ -11,7 +12,7 @@ import (
 )
 
 type ItemRepository struct {
-	ApiUrl url.URL
+	ApiUrl *url.URL
 }
 
 func NewItemRepository(apiUrl string) (*ItemRepository, error) {
@@ -21,7 +22,7 @@ func NewItemRepository(apiUrl string) (*ItemRepository, error) {
 	}
 
 	return &ItemRepository{
-		ApiUrl: *parsed,
+		ApiUrl: parsed,
 	}, nil
 }
 
@@ -46,7 +47,7 @@ func (ir *ItemRepository) GetPromo(promo string) (*entities.Promo, error) {
 
 func (ir *ItemRepository) GetItem(id int) (*entities.Item, error) {
 	requestUrl := ir.ApiUrl.JoinPath("item")
-	util.SetQueryParam(requestUrl, "id", string(id))
+	util.SetQueryParam(requestUrl, "id", strconv.Itoa(id))
 	res, err := http.Get(requestUrl.String())
 	if err != nil {
 		return nil, err
