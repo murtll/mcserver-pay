@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var migrate = flag.Bool("migrate", false, "Run migrations.")
@@ -43,8 +44,25 @@ func main() {
 		panic(err)
 	}
 
+	// open amqp connection
+	conn, err := amqp.Dial(config.AmqpUrl)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+	ch, err := conn.Channel()
+	if err != nil {
+		panic(err)
+	}
+	defer ch.Close()
+
+	mr, err := repository.NewMessageRepository(ch, config.AmqpQueueName)
+	if err != nil {
+		panic(err)
+	}
+
 	// init services
-	ds := service.NewDonateService(dr, ir)
+	ds := service.NewDonateService(dr, ir, mr)
 
 	// init main chi router
 	router := chi.NewRouter()

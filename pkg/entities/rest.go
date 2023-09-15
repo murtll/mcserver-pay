@@ -38,7 +38,7 @@ type FkPaymentRequest struct {
 	Amount          string `json:"us_number" form:"us_number"`
 	Promo           string `json:"us_promo" form:"us_promo"`
 	PaymentPrice    string `json:"AMOUNT" form:"AMOUNT"`
-	Sign    		string `json:"SIGN" form:"SIGN"`
+	Sign            string `json:"SIGN" form:"SIGN"`
 }
 
 func (fk *FkPaymentRequest) ToDonate() *Donate {

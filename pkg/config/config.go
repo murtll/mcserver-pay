@@ -27,3 +27,11 @@ var FkMerchantID = util.GetIntOrDefault("FK_MERCHANT_ID", 0)
 var Version = util.GetStrOrDefault("APP_VERSION", "0.1.0")
 
 var ApiUrl = util.GetStrOrDefault("API_URL", "http://localhost:3001")
+
+var AmqpUrl = fmt.Sprintf("amqp://%s:%s@%s:%d",
+	util.GetStrOrDefault("AMQP_USER", "guest"),
+	util.GetStrOrDefault("AMQP_PASSWORD", "guest"),
+	util.GetStrOrDefault("AMQP_HOST", "localhost"),
+	util.GetIntOrDefault("AMQP_PORT", 5672))
+
+var AmqpQueueName = util.GetStrOrDefault("AMQP_QUEUE_NAME", "donates")

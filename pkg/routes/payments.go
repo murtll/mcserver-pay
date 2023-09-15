@@ -73,13 +73,13 @@ func (p *PaymentRouter) processFkPayment(w http.ResponseWriter, r *http.Request)
 	log.Default().Print(*request)
 
 	err := p.ds.ProcessDonate(request,
-							  request.Promo,
-							  crypto.CheckSignFk,
-							  request.Sign,
-							  config.FkMerchantID,
-							  request.Amount,
-							  config.FkSigningKey,
-							  request.MerchantOrderID)
+		request.Promo,
+		crypto.CheckSignFk,
+		request.Sign,
+		config.FkMerchantID,
+		request.Amount,
+		config.FkSigningKey,
+		request.MerchantOrderID)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, entities.NewErrorResponse(err))

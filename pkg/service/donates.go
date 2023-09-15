@@ -12,20 +12,24 @@ import (
 type DonateService struct {
 	dr *repository.DonateRepository
 	ir *repository.ItemRepository
+	mr *repository.MessageRepository
 }
 
 func NewDonateService(dr *repository.DonateRepository,
-	ir *repository.ItemRepository) *DonateService {
+	ir *repository.ItemRepository,
+	mr *repository.MessageRepository,
+) *DonateService {
 	return &DonateService{
 		dr: dr,
 		ir: ir,
+		mr: mr,
 	}
 }
 
 func (ds *DonateService) ProcessDonate(d entities.Donateable,
-									   promo string,
-									   checkSignFunc func(...interface{}) (bool, error),
-									   checkSignArgs ...interface{}) error {
+	promo string,
+	checkSignFunc func(...interface{}) (bool, error),
+	checkSignArgs ...interface{}) error {
 	donate := d.ToDonate()
 
 	log.Default().Print(*donate)
@@ -69,24 +73,20 @@ func (ds *DonateService) ProcessDonate(d entities.Donateable,
 		return err
 	}
 
-	
-
 	return nil
 }
 
 func calculatePrice(price, amount int, multiplier float64) int {
 	if amount > 1 {
-		return int(multiplier * float64(amount) * math.Round(float64(price) * (((100.0 - float64(calculateSale(amount))) / 100.0))))
+		return int(multiplier * float64(amount) * math.Round(float64(price)*((100.0-float64(calculateSale(amount)))/100.0)))
 	} else {
 		return int(float64(price) * multiplier)
 	}
 }
 
 func calculateSale(amount int) int {
-	return int(math.Round(50 / (math.Pow(math.E, 3 - (float64(amount) / math.Pow(math.Pi, 2))) + 1)))
+	return int(math.Round(50 / (math.Pow(math.E, 3-(float64(amount)/math.Pow(math.Pi, 2))) + 1)))
 }
-
-
 
 // 		if (item.command) {
 // 	    	var command = item.command.replaceAll('%user%', info.us_username)
