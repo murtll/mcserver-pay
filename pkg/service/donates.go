@@ -1,6 +1,9 @@
 package service
 
 import (
+	"fmt"
+	"math"
+
 	"github.com/murtll/mcserver-pay/pkg/entities"
 	"github.com/murtll/mcserver-pay/pkg/repository"
 )
@@ -19,12 +22,45 @@ func NewDonateService(dr *repository.DonateRepository,
 }
 
 func (ds *DonateService) ProcessDonate(d entities.Donateable, promo string) error {
+	donate := d.ToDonate()
+
+	if ok, err := ds.dr.PaymentExist(donate.ID); err != nil || ok {
+		if ok {
+			return fmt.Errorf("payment with id '%d' already exist", donate.ID)
+		} else {
+			return err
+		}
+	}
+
+	multiplier := 1.0
 	if promo != "" {
-		ds.ir.GetPromo(promo)
+		fullPromo, err := ds.ir.GetPromo(promo)
+		if err != nil {
+			return err
+		}
+		multiplier = fullPromo.Multiplier
+	}
+
+	item, err := ds.ir.GetItem(donate.DonateItemID)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
+
+func calculatePrice(price, amount int, multiplier float64) int {
+	if amount > 1 {
+		return int(multiplier * float64(amount) * math.Round(float64(price) * (((100.0 - float64(calculateSale(amount))) / 100.0))))
+	} else {
+		return int(float64(price) * multiplier)
+	}
+}
+
+func calculateSale(amount int) int {
+	return int(math.Round(50 / (math.Pow(math.E, 3 - (float64(amount) / math.Pow(math.Pi, 2))) + 1)))
+}
+
 
 //     if (await db.checkIfPaymentExists(info.intid)) return res.status(400).json({ error: 'Payment already exists.' })
 

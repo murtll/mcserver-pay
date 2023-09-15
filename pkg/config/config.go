@@ -15,7 +15,7 @@ var PostgresString = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d 
 	util.GetStrOrDefault("POSTGRES_USER", "test"),
 	util.GetStrOrDefault("POSTGRES_PASSWORD", "test"),
 	util.GetStrOrDefault("POSTGRES_DB", "test"),
-	util.GetIntOrDefault("POSTGRES_PORT", 54321),
+	util.GetIntOrDefault("POSTGRES_PORT", 5432),
 	util.GetStrOrDefault("POSTGRES_SSL", "disable"))
 
 var FkTrustedIps = strings.Split(
@@ -23,4 +23,4 @@ var FkTrustedIps = strings.Split(
 
 var Version = util.GetStrOrDefault("APP_VERSION", "0.1.0")
 
-var ApiUrl = util.GetStrOrDefault("API_URL", "http://api:8080")
+var ApiUrl = util.GetStrOrDefault("API_URL", "http://localhost:3001")

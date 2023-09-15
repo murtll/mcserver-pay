@@ -32,7 +32,7 @@ func (dr *DonateRepository) GetLastDonates(count int) ([]entities.Donate, error)
 	return donates, nil
 }
 
-func (dr *DonateRepository) PaymentExist(paymentID string) (bool, error) {
+func (dr *DonateRepository) PaymentExist(paymentID uint) (bool, error) {
 	var donate entities.Donate
 	result := dr.db.Where("payment_id = ?", paymentID).Take(&donate)
 	if result.Error != nil {

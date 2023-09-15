@@ -43,3 +43,21 @@ func (ir *ItemRepository) GetPromo(promo string) (*entities.Promo, error) {
 	fullPromo.Promo = promo
 	return fullPromo, nil
 }
+
+func (ir *ItemRepository) GetItem(id int) (*entities.Item, error) {
+	requestUrl := ir.ApiUrl.JoinPath("item")
+	util.SetQueryParam(requestUrl, "id", string(id))
+	res, err := http.Get(requestUrl.String())
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("can't get item, status '%s' is not acceptable", res.Status)
+	}
+	item := &entities.Item{}
+	err = render.DecodeJSON(res.Body, item)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
