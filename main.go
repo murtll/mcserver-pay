@@ -82,6 +82,7 @@ func main() {
 
 	// mount routers
 	router.Mount("/process", routes.NewPaymentRouter(ds))
+	router.Mount("/donates", routes.NewDonateRouter(ds))
 
 	log.Default().Printf("Starting server v%s on %s", config.Version, config.ListenAddr)
 

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
@@ -70,10 +69,9 @@ func (p *PaymentRouter) processFkPayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	log.Default().Print(*request)
-
 	err := p.ds.ProcessDonate(request,
 		request.Promo,
+		nil,
 		crypto.CheckSignFk,
 		request.Sign,
 		config.FkMerchantID,

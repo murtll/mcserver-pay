@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"github.com/murtll/mcserver-pay/pkg/entities"
+	"github.com/murtll/mcserver-pay/pkg/pb"
 	"github.com/murtll/mcserver-pay/pkg/repository"
 )
 
@@ -24,6 +25,10 @@ func NewDonateService(dr *repository.DonateRepository,
 		ir: ir,
 		mr: mr,
 	}
+}
+
+func (ds *DonateService) GetLastDonates(count int) ([]entities.Donate, error) {
+	return ds.dr.GetLastDonates(count)
 }
 
 func (ds *DonateService) ProcessDonate(d entities.Donateable,
@@ -73,6 +78,15 @@ func (ds *DonateService) ProcessDonate(d entities.Donateable,
 		return err
 	}
 
+	err = ds.mr.PublishDonate(&pb.DonateMessage{
+		DonateItemId: int32(donate.DonateItemID),
+		DonaterUsername: donate.DonaterUsername,
+		Amount: int32(donate.Amount),
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -87,18 +101,3 @@ func calculatePrice(price, amount int, multiplier float64) int {
 func calculateSale(amount int) int {
 	return int(math.Round(50 / (math.Pow(math.E, 3-(float64(amount)/math.Pow(math.Pi, 2))) + 1)))
 }
-
-// 		if (item.command) {
-// 	    	var command = item.command.replaceAll('%user%', info.us_username)
-//             if (info.us_number)
-//     		   command = command.replaceAll('%number%', info.us_number)
-
-//             console.log(`sending "${command}" to server`)
-// 		    await rcon.connect()
-//             await rcon.send(command)
-//             rcon.end()
-// 		} else {
-// 		    console.log('No command for item')
-// 		}
-
-//         await db.addDonateInfo(Number(info.us_donate), info.us_username, Number(info.us_number), Date.now(), info.MERCHANT_ORDER_ID, Number(info.AMOUNT))
